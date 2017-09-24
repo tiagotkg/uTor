@@ -5,9 +5,10 @@
  */
 package servidor;
 
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  *
@@ -16,18 +17,24 @@ import java.net.Socket;
 public class Servidor {
     
     public static void main(String[] args) throws Exception {
-        
-        //Intanciando servidor para aceitar conexoes
+
         System.out.println("---- Iniciando Servidor ----");
         ServerSocket servidor = new ServerSocket(12345);
 
-        //Aceitando multiplas conexoes
+        //Criando pool de threads para reutilização
+        ExecutorService threadPool = Executors.newCachedThreadPool(); //newCachedThreadPool cresce de acordo com a necessidade, sendo assim se precisarmos de mais threads, será criado.
+
+        //Aceitando conexões
         while (true) {
-            Socket socket = servidor.accept();    
+
+            //Aceitando a conexão
+            Socket socket = servidor.accept();
             System.out.println("Aceitando novo cliente na porta " + socket.getPort());
+
+            //
+            Tarefas distribuirTarefas = new Tarefas(socket);
+            threadPool.execute(distribuirTarefas);
         }
-        
-        
     }
     
 }
